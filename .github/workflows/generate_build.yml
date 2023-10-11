@@ -2,10 +2,6 @@ name: Generate Build
 
 on:
   workflow_dispatch:
-    inputs:
-      branch_name:
-        description: 'Enter the Branch from which you want to build'
-        required: true
   
 jobs:
 
@@ -13,11 +9,16 @@ jobs:
      runs-on: ubuntu-latest
     
      steps:
+      - name: Fetch Branch Name
+        id: fetch-branch
+        run: echo "::set-output name=branch::${{ github.ref }}"
+ 
       - name: Checkout the code
         uses: actions/checkout@v4.1.0
         with:
-          ref: ${{github.event.inputs.branch }}
+          ref: ${{github.ref}}
 
+       
       - name: Set up JDK 17
         uses: actions/setup-java@v3.13.0
         with:
