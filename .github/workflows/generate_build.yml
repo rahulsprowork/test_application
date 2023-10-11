@@ -24,13 +24,8 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
 
-      - name: Generate Debug Build
+      - name: Build Debug APK
         run: |
-           chmod +x ./gradlew
-           ./gradlew bundleDebug
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
-      - name: Uploading Debug Bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: debug-bundle
-          path: app/build/outputs/bundle/debug/app-debug.aab
