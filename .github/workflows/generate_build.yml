@@ -62,7 +62,7 @@ jobs:
           
       # Download Debug Bundle
       - name: Download ${{ github.event.inputs.branch_name }} Debug Bundle
-        uses: actions/download-artifact@v2.3.0
+        uses: actions/download-artifact@v3
         with:
           name: ${{github.event.inputs.branch_name }}.aab
-          path: test_application_file/
+          path: ~/test_application_file
