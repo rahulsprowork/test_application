@@ -65,4 +65,4 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{github.event.inputs.branch_name }}.aab
-          path: ~/test_application_file
+          path: test_application_file/
