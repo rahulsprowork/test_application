@@ -18,6 +18,12 @@ jobs:
         with:
           ref: ${{github.event.inputs.branch }}
 
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
       - name: Generate Debug Build
         run: |
            chmod +x ./gradlew
