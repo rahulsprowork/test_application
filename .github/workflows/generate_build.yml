@@ -43,10 +43,19 @@ jobs:
           name: ${{github.event.inputs.branch_name}}.aab
           path: app/build/outputs/bundle/debug/app-debug.aab
 
+      # Check if the Directory is Exist or not
+      - name: Check if Directory Exists
+        id: check-directory
+        run: |
+          directory_exists=false  
+          if [ -d "test_application_file" ]; then
+            directory_exists=true  
+            
       # Create Sub Directory
       - name: Create Subdirectory
-        run: mkdir -p test_application_file  # Ensure the subdirectory exists
-
+        run: | 
+          if [ "${{ steps.check-directory.outputs.directory_exists }}" == "false" ]; then
+            mkdir -p downloads
 
       # Download Debug Bundle
       - name: Download ${{ github.event.inputs.branch_name }} Debug Bundle
