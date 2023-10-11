@@ -38,7 +38,8 @@ jobs:
           # Check for the presence of the protobuf error
           if gplaycli -v 2>&1 | grep -q "Descriptors cannot not be created directly"; then
             # Downgrade the protobuf package to a compatible version
-            export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+             pip install protobuf==3.29
+             export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
           fi
 
           # Install gplaycli
