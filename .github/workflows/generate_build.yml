@@ -49,14 +49,17 @@ jobs:
         run: |
           directory_exists=false  
           if [ -d "test_application_file" ]; then
-            directory_exists=true  
+            directory_exists=true
+          fi
+          echo "Directory exists: $directory_exists"
             
       # Create Sub Directory
       - name: Create Subdirectory
         run: | 
           if [ "${{ steps.check-directory.outputs.directory_exists }}" == "false" ]; then
             mkdir -p downloads
-
+          fi
+          
       # Download Debug Bundle
       - name: Download ${{ github.event.inputs.branch_name }} Debug Bundle
         uses: actions/download-artifact@v2.1.1
