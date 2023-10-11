@@ -1,0 +1,60 @@
+# Workflows Name
+name: Generate QA Build
+
+# Trigger
+on:
+  # Manual Trigger Workflows
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Enter the Branch from which you want to build'
+        required: true
+
+# Jobs  
+jobs:
+  # Job - 1 Generate Debug Build 
+  generate-debug-build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      - name: Checkout the code ${{ github.event.inputs.branch_name }} Branch
+        uses: actions/checkout@v4.1.0
+        with:
+           ref: ${{ github.event.inputs.branch_name }}
+
+      # Set Up JDK 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 17
+          distribution: 'adopt'
+  
+      # Generate Debug Build
+      - name: Generate ${{ github.event.inputs.branch_name }} Debug Build
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bundleDebug
+
+      # Uploading Debug Bundle
+      - name: Uploading ${{ github.event.inputs.branch_name }} Debug Bundle
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: ${{github.event.inputs.branch_name}}.aab
+          path: app/build/outputs/bundle/debug/app-debug.aab
+
+      # Internal App Sharing
+      - name: Internal App Sharing
+        run: |
+          # Install gplaycli
+          pip install gplaycli
+          gplaycli -v
+
+          # Upload AAB to Google Play Internal App Sharing
+          gplaycli --email ${{ secrets.RAHUL_PLAY_STORE_EMAIL }} --password ${{ secrets.RAHUL_PLAY_STORE_PASSWORD }} upload app/build/outputs/bundle/debug/app-debug.aab
+          
+          # Get the Internal App Sharing Link
+          sharing_link=$(gplaycli get | grep "Internal app sharing URL" | awk '{print $5}')
+          echo "Internal App Sharing Link: $sharing_link"
+        env:
+          RAHUL_PLAY_STORE_EMAIL: ${{ secrets.RAHUL_PLAY_STORE_EMAIL }}
+          RAHUL_PLAY_STORE_PASSWORD: ${{ secrets.RAHUL_PLAY_STORE_PASSWORD }}
