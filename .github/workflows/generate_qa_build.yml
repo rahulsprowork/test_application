@@ -33,28 +33,19 @@ jobs:
           name: ${{ github.event.inputs.branch_name }}.aab
           path: app/build/outputs/bundle/debug/app-debug.aab
 
-      - name: Handle Compatibility Issue
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Authenticate with Firebase
+        run: firebase login:ci --no-localhost --token "${{ secrets.RAHUL_FIREBASE_TOKEN }}"
+
+      - name: Distribute App
         run: |
-          # Check for the presence of the protobuf error
-          if gplaycli -v 2>&1 | grep -q "Descriptors cannot not be created directly"; then
-            # Downgrade the protobuf package to a compatible version
-             pip install protobuf==3.29
-             # export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-          fi
+          firebase appdistribution:distribute app/build/outputs/apk/release/app-release-unsigned.apk \
+          --app ${{ secrets.FIREBASE_APP_ID }} \
+          --groups internal-testers
 
-          # Install gplaycli
-          pip install gplaycli
-
-          # Set Google Play credentials
-          gplaycli --email ${{ secrets.RAHUL_PLAY_STORE_EMAIL }} --password ${{ secrets.RAHUL_PLAY_STORE_PASSWORD }}
-
-          # Upload AAB to Google Play Internal App Sharing
-          gplaycli upload app/build/outputs/bundle/debug/app-debug.aab
-
-          # Get the Internal App Sharing Link
-          sharing_link=$(gplaycli get | grep "Internal app sharing URL" | awk '{print $5}')
-          echo "Internal App Sharing Link: $sharing_link"
-        env:
-          RAHUL_PLAY_STORE_EMAIL: ${{ secrets.RAHUL_PLAY_STORE_EMAIL }}
-          RAHUL_PLAY_STORE_PASSWORD: ${{ secrets.RAHUL_PLAY_STORE_PASSWORD }}
-          PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
+      - name: Get Distribution Link
+        run: |
+          distribution_link=$(firebase appdistribution:distributions:list --app ${{ secrets.FIREBASE_APP_ID }} --json | jq -r '.[0].downloadUrl')
+          echo "Distribution Link: $distribution_link"
